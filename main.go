@@ -3,12 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"html/template"
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"runtime"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -25,7 +27,7 @@ func main() {
 		for i, v := range configs {
 			fmt.Printf("%d. %s\n", i+1, v.GradeDesc)
 		}
-		_, err := fmt.Scanf("%d", &choice)
+		_, err := fmt.Scanf(input("%d"), &choice)
 		if err != nil || choice < 1 || choice > len(configs) {
 			println("请输入正确选项")
 		} else {
@@ -39,7 +41,7 @@ func main() {
 		for i, v := range config.WorkConfigs {
 			fmt.Printf("%d. %s\n", i+1, v.WorkDesc)
 		}
-		_, err := fmt.Scanf("%d", &choice)
+		_, err := fmt.Scanf(input("%d"), &choice)
 		if err != nil || choice < 1 || choice > len(config.WorkConfigs) {
 			println("请输入正确选项")
 		} else {
@@ -50,7 +52,7 @@ func main() {
 
 	for {
 		fmt.Println("请输入要出几道题(如100):")
-		_, err := fmt.Scanf("%d", &count)
+		_, err := fmt.Scanf(input("%d"), &count)
 		if err != nil {
 			println("请输入正确题目数量")
 		} else {
@@ -60,7 +62,7 @@ func main() {
 
 	for {
 		fmt.Println("请输入份数(如2):")
-		_, err := fmt.Scanf("%d", &copies)
+		_, err := fmt.Scanf(input("%d"), &copies)
 		if err != nil {
 			println("请输入正确份数")
 		} else {
@@ -175,5 +177,13 @@ func initEnv() {
 		if err != nil {
 			panic(err)
 		}
+	}
+}
+
+func input(src string) string {
+	if runtime.GOOS == "windows" {
+		return src + "\n"
+	} else {
+		return src
 	}
 }

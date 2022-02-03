@@ -9,7 +9,7 @@ const Tpl = `
 </head>
 <body>
     <center><br><br>
-        <h2>{{.grade}}{{if .isQuestion}}口算题{{else}}答案{{end}}<br></h2>
+        <h2>{{.grade}}{{if .isQuestion}}口算题{{else}}答案{{end}} 第{{index}}份<br></h2>
         <h3>{{.work}}</h3>{{if .isQuestion}}班级__________ 学号________ 姓名__________<br>{{end}}<br>
         <table border=0 width=640 cellspacing=10>
             {{range $idx,$v := .result}}

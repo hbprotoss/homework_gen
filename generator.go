@@ -30,7 +30,15 @@ func (w *Work) Gen(questions map[string]bool) WorkResult {
 	} else {
 		opCount = w.OpCounts[rand.Intn(len(w.OpCounts))]
 	}
-	question, answer, _ := w.calc(1, opCount+1, w.Max, 0, "", questions)
+	var question string
+	var answer int16
+	var retry bool
+	for {
+		question, answer, retry = w.calc(1, opCount+1, w.Max, 0, "", questions)
+		if !retry {
+			break
+		}
+	}
 	return WorkResult{
 		question,
 		answer,
@@ -39,11 +47,7 @@ func (w *Work) Gen(questions map[string]bool) WorkResult {
 
 func (w *Work) calc(layer, maxLayer, maxElement int8, sum int16, questionNow string, questions map[string]bool) (question string, answer int16, retry bool) {
 	if layer > maxLayer {
-		_, ok := questions[questionNow]
-		if !ok {
-			questions[questionNow] = true
-		}
-		return questionNow, sum, ok // 已经计算过了，需要重新计算
+		return questionNow, sum, false
 	}
 	seq := randSeq(maxElement)
 	opSeq := randOpSeq(w.Ops)
