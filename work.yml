@@ -1,0 +1,87 @@
+- gradeDesc: 一年级第一学期
+  workConfigs:
+    - workDesc: 10以内加法
+      max: 9
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: ignore
+    - workDesc: 10以内减法
+      max: 9
+      ops: ['-']
+      opCounts: [1]
+      upgradeChecker: ignore
+    - workDesc: 10以内加减综合
+      max: 9
+      ops: ['+', '-']
+      opCounts: [1]
+      upgradeChecker: ignore
+    - workDesc: 10以内连加
+      max: 9
+      ops: ['+']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 10以内连减
+      max: 9
+      ops: ['-']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 10以内连续加减综合
+      max: 9
+      ops: ['+', '-']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 20以内不进位加法
+      max: 19
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+    - workDesc: 20以内不退位减法
+      max: 19
+      ops: ['-']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+    - workDesc: 20以内不进位不退位综合
+      max: 19
+      ops: ['+', '-']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+    - workDesc: 20以内进位加法
+      max: 19
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: upgrade
+    - workDesc: 20以内退位减法
+      max: 19
+      ops: ['-']
+      opCounts: [1]
+      upgradeChecker: upgrade
+    - workDesc: 20以内进位退位加减综合
+      max: 19
+      ops: ['+', '-']
+      opCounts: [1]
+      upgradeChecker: upgrade
+    - workDesc: 20以内加减综合
+      max: 19
+      ops: ['+', '-']
+      opCounts: [1]
+      upgradeChecker: ignore
+    - workDesc: 20以内连加
+      max: 19
+      ops: ['+']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 20以内连减
+      max: 19
+      ops: ['-']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 20以内连续加减综合
+      max: 19
+      ops: ['+', '-']
+      opCounts: [2]
+      upgradeChecker: ignore
+    - workDesc: 综合练习
+      max: 19
+      ops: ['+', '-']
+      opCounts: [1, 2]
+      upgradeChecker: ignore
