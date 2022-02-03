@@ -13,6 +13,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type ViewData map[string]interface{}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	var choice, count, copies int
@@ -70,32 +72,40 @@ func main() {
 		}
 	}
 
+	var viewDatas []ViewData
 	println()
 	fmt.Printf("已选择: %s, %s, 共%d份, 每份%d题\n\n", config.GradeDesc, workConfig.WorkDesc, copies, count)
 	for i := 0; i < copies; i++ {
-		viewData := map[string]interface{}{
+		viewData := ViewData{
 			"grade":  config.GradeDesc,
 			"work":   workConfig.WorkDesc,
 			"result": []WorkResult{},
 			"index":  i + 1,
 		}
-		fmt.Println("第", i+1, "份")
 		questions := make(map[string]bool)
 		for j := 0; j < count; j++ {
 			result := workConfig.Gen.Gen(questions)
 			viewData["result"] = append(viewData["result"].([]WorkResult), result)
 			//fmt.Printf("%s = %d\n", result.Question, result.Answer)
 		}
+		fmt.Println("第", i+1, "份")
 
-		viewData["isQuestion"] = true
-		writeOutFile(htmlTpl, viewData, fmt.Sprintf("口算题-%d", i+1))
-		viewData["isQuestion"] = false
-		writeOutFile(htmlTpl, viewData, fmt.Sprintf("答案-%d", i+1))
-		fmt.Println()
+		viewDatas = append(viewDatas, viewData)
 	}
+	for _, v := range viewDatas {
+		v["isQuestion"] = true
+	}
+	writeOutFile(htmlTpl, viewDatas, "口算题")
+	for _, v := range viewDatas {
+		v["isQuestion"] = false
+	}
+	writeOutFile(htmlTpl, viewDatas, "答案")
+
+	var noUse string
+	fmt.Scanf(input("%s"), &noUse)
 }
 
-func writeOutFile(htmlTpl *template.Template, viewData map[string]interface{}, fileName string) {
+func writeOutFile(htmlTpl *template.Template, viewDatas []ViewData, fileName string) {
 	finalFileName := fmt.Sprintf("%s/%s.htm", OutDir, fileName)
 	file, err := os.OpenFile(
 		finalFileName,
@@ -105,7 +115,7 @@ func writeOutFile(htmlTpl *template.Template, viewData map[string]interface{}, f
 	if err != nil {
 		panic(err)
 	}
-	err = htmlTpl.Execute(file, viewData)
+	err = htmlTpl.Execute(file, viewDatas)
 	if err != nil {
 		panic(err)
 	}

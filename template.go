@@ -8,21 +8,25 @@ const Tpl = `
     <META http-equiv=Content-Type content='text/html; charset=utf-8'>
 </head>
 <body>
+{{range $outerIdx,$viewData := .}}
+<div style="page-break-after:always;">
     <center><br><br>
-        <h2>{{.grade}}{{if .isQuestion}}口算题{{else}}答案{{end}} 第{{index}}份<br></h2>
+        <h2>{{.grade}}{{if .isQuestion}}口算题{{else}}答案{{end}} 第{{.index}}份<br></h2>
         <h3>{{.work}}</h3>{{if .isQuestion}}班级__________ 学号________ 姓名__________<br>{{end}}<br>
         <table border=0 width=640 cellspacing=10>
             {{range $idx,$v := .result}}
                 {{if isRowBegin $idx}}
                 <tr>
                 {{end}}
-                <td>{{.Question}} = {{if not $.isQuestion}}{{.Answer}}{{end}}</td>
-                {{if isRowEnd $idx (len $.result)}}
+                <td>{{.Question}} = {{if not $viewData.isQuestion}}{{.Answer}}{{end}}</td>
+                {{if isRowEnd $idx (len $viewData.result)}}
                 </tr>
                 {{end}}
             {{end}}
         </table>
     </center>
+</div>
+{{end}}
 </body>
 </html>
 `
