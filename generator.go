@@ -54,22 +54,22 @@ func (w *Work) Gen() WorkResult {
 		opCount = w.OpCounts[rand.Intn(len(w.OpCounts))]
 	}
 	maxLayer := opCount + 1
-	var multipleLayer int8
+	var specialNumberLayer int8
 	if w.UseSpecialNumber {
 		// fixme: 有减法时，特殊要求的数字总生成在最后，防止死循环，简单处理了
 		if contains(w.Ops, Minus) {
-			multipleLayer = maxLayer
+			specialNumberLayer = maxLayer
 		} else {
-			multipleLayer = randRange(1, maxLayer+1)
+			specialNumberLayer = randRange(1, maxLayer+1)
 		}
 	} else {
-		multipleLayer = 0
+		specialNumberLayer = 0
 	}
 	var question string
 	var answer int16
 	var retry bool
 	for {
-		question, answer, retry = w.calc(1, maxLayer, multipleLayer, 0, "")
+		question, answer, retry = w.calc(1, maxLayer, specialNumberLayer, 0, "")
 		if !retry {
 			break
 		}
