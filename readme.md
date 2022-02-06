@@ -1,8 +1,8 @@
 # 小学口算题生成器
 
 输出可打印htm文件（支持打印分页）: 
-- [题目](works/口算题.htm)
-- [答案](works/答案.htm)
+- [题目](https://htmlpreview.github.io/?https://github.com/hbprotoss/homework_gen/blob/master/works/%E5%8F%A3%E7%AE%97%E9%A2%98.htm)
+- [答案](https://htmlpreview.github.io/?https://github.com/hbprotoss/homework_gen/blob/master/works/%E5%8F%A3%E7%AE%97%E9%A2%98.htm)
 
 支持功能：
 
