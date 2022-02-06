@@ -1,6 +1,9 @@
 package main
 
-import "strconv"
+import (
+	"math/rand"
+	"strconv"
+)
 
 const OutDir = "works"
 
@@ -34,6 +37,15 @@ func ToOps(ops []string) []Op {
 		result = append(result, Op(op[0]))
 	}
 	return result
+}
+
+func contains(s []Op, e Op) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 var (
@@ -83,4 +95,54 @@ var UpgradeCheckerMap = map[string]UpgradeChecker{
 	"noUpgrade": NoUpgrade,
 	"upgrade":   Upgrade,
 	"ignore":    Ignore,
+}
+
+var (
+	Normal = SpecialNumber{RandSeq: func(min, max int16) []int16 {
+		seq := make([]int16, max-min+1)
+		for i := min; i <= max; i++ {
+			seq[i-min] = i
+		}
+		rand.Shuffle(len(seq), func(i, j int) {
+			seq[i], seq[j] = seq[j], seq[i]
+		})
+		return seq
+	}}
+	TenMultiple = SpecialNumber{RandSeq: func(min, max int16) []int16 {
+		multiple := int16(10)
+		seq := make([]int16, max/multiple)
+		for i := int16(1); i <= max/multiple; i++ {
+			seq[i-1] = i * multiple
+		}
+		rand.Shuffle(len(seq), func(i, j int) {
+			seq[i], seq[j] = seq[j], seq[i]
+		})
+		return seq
+	}}
+	OneNumber = SpecialNumber{RandSeq: func(min, max int16) []int16 {
+		min = 1
+		max = 9
+		seq := make([]int16, max-min+1)
+		for i := min; i <= max; i++ {
+			seq[i-min] = i
+		}
+		rand.Shuffle(len(seq), func(i, j int) {
+			seq[i], seq[j] = seq[j], seq[i]
+		})
+		return seq
+	}}
+	CompositeNumber = SpecialNumber{RandSeq: func(min, max int16) []int16 {
+		if rand.Intn(2) == 0 {
+			return TenMultiple.RandSeq(min, max)
+		} else {
+			return OneNumber.RandSeq(min, max)
+		}
+	}}
+)
+
+var SpecialNumberMap = map[string]SpecialNumber{
+	"normal":      Normal,
+	"tenMultiple": TenMultiple,
+	"oneNumber":   OneNumber,
+	"composite":   CompositeNumber,
 }

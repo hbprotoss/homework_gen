@@ -82,9 +82,8 @@ func main() {
 			"result": []WorkResult{},
 			"index":  i + 1,
 		}
-		questions := make(map[string]bool)
 		for j := 0; j < count; j++ {
-			result := workConfig.Gen.Gen(questions)
+			result := workConfig.Gen.Gen()
 			viewData["result"] = append(viewData["result"].([]WorkResult), result)
 			//fmt.Printf("%s = %d\n", result.Question, result.Answer)
 		}
@@ -142,10 +141,13 @@ type YamlConfig struct {
 	GradeDesc   string `yaml:"gradeDesc"`
 	WorkConfigs []struct {
 		WorkDesc       string   `yaml:"workDesc"`
-		Max            int8     `yaml:"max"`
+		Min            int16    `yaml:"min"`
+		Max            int16    `yaml:"max"`
+		MaxResult      int16    `yaml:"maxResult"`
 		Ops            []string `yaml:"ops"`
 		OpCounts       []int8   `yaml:"opCounts"`
 		UpgradeChecker string   `yaml:"upgradeChecker"`
+		SpecialNumber  string   `yaml:"specialNumber"`
 	} `yaml:"workConfigs"`
 }
 
@@ -165,12 +167,7 @@ func initYamlConfig() []GradeConfig {
 		for _, w := range v.WorkConfigs {
 			workConfigs = append(workConfigs, WorkConfig{
 				WorkDesc: w.WorkDesc,
-				Gen: &Work{
-					Max:            w.Max,
-					Ops:            ToOps(w.Ops),
-					OpCounts:       w.OpCounts,
-					UpgradeChecker: UpgradeCheckerMap[w.UpgradeChecker],
-				},
+				Gen:      NewWork(w.Min, w.Max, w.MaxResult, w.Ops, w.OpCounts, w.UpgradeChecker, w.SpecialNumber),
 			})
 		}
 		configs = append(configs, GradeConfig{

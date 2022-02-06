@@ -85,3 +85,117 @@
       ops: ['+', '-']
       opCounts: [1, 2]
       upgradeChecker: ignore
+- gradeDesc: 一年级第二学期
+  workConfigs:
+    - workDesc: 100以内不进位加整十数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+      specialNumber: tenMultiple
+    - workDesc: 100以内不进位加一位数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+      specialNumber: oneNumber
+    - workDesc: 100以内不进位加综合
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: ['+']
+      opCounts: [1]
+      upgradeChecker: noUpgrade
+      specialNumber: composite
+    - workDesc: 100以内不退位减整十数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: noUpgrade
+      specialNumber: tenMultiple
+    - workDesc: 100以内不退位减一位数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: noUpgrade
+      specialNumber: oneNumber
+    - workDesc: 100以内不退位减整十数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: noUpgrade
+      specialNumber: composite
+    - workDesc: 100以内不进位不退位加减综合
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+', '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: noUpgrade
+      specialNumber: composite
+    - workDesc: 100以内进位加一位数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+' ]
+      opCounts: [ 1 ]
+      upgradeChecker: upgrade
+      specialNumber: oneNumber
+    - workDesc: 100以内退位减一位数
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: upgrade
+      specialNumber: oneNumber
+    - workDesc: 100以内进位退位加减综合
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+', '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: upgrade
+      specialNumber: oneNumber
+    - workDesc: 100以内两位数不进位不退位加减综合
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+', '-' ]
+      opCounts: [ 1 ]
+      upgradeChecker: noUpgrade
+      specialNumber: normal
+    - workDesc: 100以内连加
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+']
+      opCounts: [ 2 ]
+      upgradeChecker: noUpgrade
+      specialNumber: composite
+    - workDesc: 100以内连减
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '-']
+      opCounts: [ 2 ]
+      upgradeChecker: noUpgrade
+      specialNumber: composite
+    - workDesc: 100以内综合练习
+      min: 10
+      max: 99
+      maxResult: 99
+      ops: [ '+', '-']
+      opCounts: [ 1, 2 ]
+      upgradeChecker: ignore
+      specialNumber: composite

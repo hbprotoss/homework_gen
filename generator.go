@@ -8,14 +8,37 @@ import (
 )
 
 type Generator interface {
-	Gen(questions map[string]bool) WorkResult
+	Gen() WorkResult
 }
 
 type Work struct {
-	Max            int8           // xx以内算数
-	Ops            []Op           // 运算
-	OpCounts       []int8         // 操作符数量
-	UpgradeChecker UpgradeChecker // 是否检查进位
+	Min              int16          // 最小值
+	Max              int16          // xx以内算数
+	MaxResult        int16          // 结果最大值
+	Ops              []Op           // 运算
+	OpCounts         []int8         // 操作符数量
+	UpgradeChecker   UpgradeChecker // 是否检查进位
+	UseSpecialNumber bool           // 是否使用特殊数字
+	SpecialNumber    SpecialNumber  // 是否必须包含特殊数字
+}
+
+func NewWork(min, max, maxResult int16, ops []string, opCounts []int8, upgradeChecker string, specialNumber string) *Work {
+	if min == 0 {
+		min = 1
+	}
+	w := &Work{
+		Min:            min,
+		Max:            max,
+		MaxResult:      maxResult,
+		Ops:            ToOps(ops),
+		OpCounts:       opCounts,
+		UpgradeChecker: UpgradeCheckerMap[upgradeChecker],
+	}
+	if specialNumber != "" {
+		w.UseSpecialNumber = true
+		w.SpecialNumber = SpecialNumberMap[specialNumber]
+	}
+	return w
 }
 
 type WorkResult struct {
@@ -23,18 +46,30 @@ type WorkResult struct {
 	Answer   int16
 }
 
-func (w *Work) Gen(questions map[string]bool) WorkResult {
+func (w *Work) Gen() WorkResult {
 	var opCount int8
 	if len(w.OpCounts) == 1 {
 		opCount = w.OpCounts[0]
 	} else {
 		opCount = w.OpCounts[rand.Intn(len(w.OpCounts))]
 	}
+	maxLayer := opCount + 1
+	var multipleLayer int8
+	if w.UseSpecialNumber {
+		// fixme: 有减法时，特殊要求的数字总生成在最后，防止死循环，简单处理了
+		if contains(w.Ops, Minus) {
+			multipleLayer = maxLayer
+		} else {
+			multipleLayer = randRange(1, maxLayer+1)
+		}
+	} else {
+		multipleLayer = 0
+	}
 	var question string
 	var answer int16
 	var retry bool
 	for {
-		question, answer, retry = w.calc(1, opCount+1, w.Max, 0, "", questions)
+		question, answer, retry = w.calc(1, maxLayer, multipleLayer, 0, "")
 		if !retry {
 			break
 		}
@@ -45,16 +80,21 @@ func (w *Work) Gen(questions map[string]bool) WorkResult {
 	}
 }
 
-func (w *Work) calc(layer, maxLayer, maxElement int8, sum int16, questionNow string, questions map[string]bool) (question string, answer int16, retry bool) {
+func (w *Work) calc(layer, maxLayer, specialNumberLayer int8, sum int16, questionNow string) (question string, answer int16, retry bool) {
 	if layer > maxLayer {
 		return questionNow, sum, false
 	}
-	seq := randSeq(maxElement)
+	var seq []int16
+	if layer == specialNumberLayer {
+		seq = w.SpecialNumber.RandSeq(w.Min, w.Max)
+	} else {
+		seq = Normal.RandSeq(w.Min, w.Max)
+	}
 	opSeq := randOpSeq(w.Ops)
 	// 每一层，随机尝试每个数
 	for _, next := range seq {
 		if layer == 1 {
-			question, answer, retry = w.calc(layer+1, maxLayer, maxElement, int16(next), fmt.Sprintf("%d", next), questions)
+			question, answer, retry = w.calc(layer+1, maxLayer, specialNumberLayer, next, fmt.Sprintf("%d", next))
 			if retry {
 				continue
 			} else {
@@ -63,14 +103,12 @@ func (w *Work) calc(layer, maxLayer, maxElement int8, sum int16, questionNow str
 		}
 		// 每一个选定数字下，尝试随机操作
 		for _, nextOp := range opSeq {
-			tmpSum := nextOp.Calc(sum, int16(next))
-			if w.ShouldRetry(sum, int16(next), tmpSum, nextOp) {
+			tmpSum := nextOp.Calc(sum, next)
+			if w.ShouldRetry(sum, next, tmpSum, nextOp) {
 				continue
 			} else {
 				sum = tmpSum
-				question, answer, retry = w.calc(layer+1, maxLayer, maxElement, sum,
-					fmt.Sprintf("%s %s %d", questionNow, string(nextOp), next),
-					questions)
+				question, answer, retry = w.calc(layer+1, maxLayer, specialNumberLayer, sum, fmt.Sprintf("%s %s %d", questionNow, string(nextOp), next))
 				if retry {
 					continue
 				} else {
@@ -84,6 +122,9 @@ func (w *Work) calc(layer, maxLayer, maxElement int8, sum int16, questionNow str
 
 func (w *Work) ShouldRetry(sum, next, sumResult int16, op Op) bool {
 	if sumResult <= 0 {
+		return true
+	}
+	if w.MaxResult > 0 && sumResult > w.MaxResult {
 		return true
 	}
 	sumStr := strconv.Itoa(int(sum))
@@ -101,17 +142,6 @@ func padString(s, pad string, toLen int) string {
 	return strings.Repeat(pad, toLen-len(s)) + s
 }
 
-func randSeq(max int8) (seq []int8) {
-	seq = make([]int8, max)
-	for i := int8(1); i <= max; i++ {
-		seq[i-1] = i
-	}
-	rand.Shuffle(len(seq), func(i, j int) {
-		seq[i], seq[j] = seq[j], seq[i]
-	})
-	return
-}
-
 func randOpSeq(opCandidates []Op) (seq []Op) {
 	if len(opCandidates) == 1 {
 		return opCandidates
@@ -124,6 +154,15 @@ func randOpSeq(opCandidates []Op) (seq []Op) {
 	return
 }
 
+// [min, max)
+func randRange(min, max int8) int8 {
+	return int8(rand.Intn(int(max-min)) + int(min))
+}
+
 type UpgradeChecker struct {
 	ShouldRetry func(sum, next string, op Op) bool
+}
+
+type SpecialNumber struct {
+	RandSeq func(min, max int16) []int16
 }
