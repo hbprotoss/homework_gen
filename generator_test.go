@@ -12,17 +12,17 @@ func TestGen(t *testing.T) {
 	//config := initYamlConfig()
 	//w := config[0].WorkConfigs[1].Gen
 	w := &Work{
-		Min:              10,
-		Max:              99,
-		MaxResult:        99,
-		Ops:              []Op{'+'},
+		Min:              100,
+		Max:              999,
+		Ops:              []Op{'÷'},
 		OpCounts:         []int8{1},
-		UpgradeChecker:   NoUpgrade,
+		UpgradeChecker:   Ignore,
 		UseSpecialNumber: true,
 		SpecialNumber:    OneNumber,
+		ResultChecker:    ZeroInMiddle,
 	}
 	for i := 0; i < 100; i++ {
 		result := w.Gen()
-		fmt.Printf("%s = %d\n", result.Question, result.Answer)
+		fmt.Printf("%s = %s\n", result.Question, result.Answer)
 	}
 }

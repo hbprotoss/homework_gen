@@ -20,9 +20,10 @@ type Work struct {
 	UpgradeChecker   UpgradeChecker // 是否检查进位
 	UseSpecialNumber bool           // 是否使用特殊数字
 	SpecialNumber    SpecialNumber  // 是否必须包含特殊数字
+	ResultChecker    ResultChecker  // 结果检查器
 }
 
-func NewWork(min, max, maxResult int16, ops []string, opCounts []int8, upgradeChecker string, specialNumber string) *Work {
+func NewWork(min, max, maxResult int16, ops []string, opCounts []int8, upgradeChecker, resultChecker, specialNumber string) *Work {
 	if min == 0 {
 		min = 1
 	}
@@ -33,6 +34,7 @@ func NewWork(min, max, maxResult int16, ops []string, opCounts []int8, upgradeCh
 		Ops:            ToOps(ops),
 		OpCounts:       opCounts,
 		UpgradeChecker: UpgradeCheckerMap[upgradeChecker],
+		ResultChecker:  ResultCheckerMap[resultChecker],
 	}
 	if specialNumber != "" {
 		w.UseSpecialNumber = true
@@ -43,7 +45,7 @@ func NewWork(min, max, maxResult int16, ops []string, opCounts []int8, upgradeCh
 
 type WorkResult struct {
 	Question string
-	Answer   int16
+	Answer   string
 }
 
 func (w *Work) Gen() WorkResult {
@@ -57,7 +59,7 @@ func (w *Work) Gen() WorkResult {
 	var specialNumberLayer int8
 	if w.UseSpecialNumber {
 		// fixme: 有减法时，特殊要求的数字总生成在最后，防止死循环，简单处理了
-		if contains(w.Ops, Minus) {
+		if contains(w.Ops, Minus) || contains(w.Ops, Divide) {
 			specialNumberLayer = maxLayer
 		} else {
 			specialNumberLayer = randRange(1, maxLayer+1)
@@ -74,9 +76,29 @@ func (w *Work) Gen() WorkResult {
 			break
 		}
 	}
-	return WorkResult{
-		question,
-		answer,
+
+	// fixme: 除法余数结果展示偷懒了
+	sp := strings.Split(question, " ÷ ")
+	if len(sp) == 2 {
+		op1, _ := strconv.Atoi(sp[0])
+		op2, _ := strconv.Atoi(sp[1])
+		result := op1 / op2
+		mod := op1 % op2
+		var sAnswer string
+		if mod == 0 {
+			sAnswer = strconv.Itoa(result)
+		} else {
+			sAnswer = fmt.Sprintf("%d...%d", result, mod)
+		}
+		return WorkResult{
+			question,
+			sAnswer,
+		}
+	} else {
+		return WorkResult{
+			question,
+			strconv.Itoa(int(answer)),
+		}
 	}
 }
 
@@ -135,7 +157,8 @@ func (w *Work) ShouldRetry(sum, next, sumResult int16, op Op) bool {
 		sumStr = padString(sumStr, "0", len(nextStr))
 	}
 
-	return w.UpgradeChecker.ShouldRetry(sumStr, nextStr, op)
+	return w.UpgradeChecker.ShouldRetry(sumStr, nextStr, op) ||
+		w.ResultChecker.ShouldRetry(sum, next, sumResult, op)
 }
 
 func padString(s, pad string, toLen int) string {
@@ -161,6 +184,10 @@ func randRange(min, max int8) int8 {
 
 type UpgradeChecker struct {
 	ShouldRetry func(sum, next string, op Op) bool
+}
+
+type ResultChecker struct {
+	ShouldRetry func(sum, next, result int16, op Op) bool
 }
 
 type SpecialNumber struct {

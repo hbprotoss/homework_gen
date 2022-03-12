@@ -148,6 +148,7 @@ type YamlConfig struct {
 		OpCounts       []int8   `yaml:"opCounts"`
 		UpgradeChecker string   `yaml:"upgradeChecker"`
 		SpecialNumber  string   `yaml:"specialNumber"`
+		ResultChecker  string   `yaml:"resultChecker"`
 	} `yaml:"workConfigs"`
 }
 
@@ -167,7 +168,7 @@ func initYamlConfig() []GradeConfig {
 		for _, w := range v.WorkConfigs {
 			workConfigs = append(workConfigs, WorkConfig{
 				WorkDesc: w.WorkDesc,
-				Gen:      NewWork(w.Min, w.Max, w.MaxResult, w.Ops, w.OpCounts, w.UpgradeChecker, w.SpecialNumber),
+				Gen:      NewWork(w.Min, w.Max, w.MaxResult, w.Ops, w.OpCounts, w.UpgradeChecker, w.ResultChecker, w.SpecialNumber),
 			})
 		}
 		configs = append(configs, GradeConfig{

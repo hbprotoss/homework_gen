@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"strconv"
+	"strings"
 )
 
 const OutDir = "works"
@@ -13,7 +14,7 @@ const (
 	Plus     Op = '+'
 	Minus    Op = '-'
 	Multiply Op = '*'
-	Divide   Op = '/'
+	Divide   Op = '÷'
 )
 
 func (op Op) Calc(op1, op2 int16) int16 {
@@ -34,9 +35,23 @@ func (op Op) Calc(op1, op2 int16) int16 {
 func ToOps(ops []string) []Op {
 	var result []Op
 	for _, op := range ops {
-		result = append(result, Op(op[0]))
+		result = append(result, toOp(op))
 	}
 	return result
+}
+
+func toOp(op string) Op {
+	switch op {
+	case "+":
+		return Plus
+	case "-":
+		return Minus
+	case "*":
+		return Multiply
+	case "÷":
+		return Divide
+	}
+	panic("invalid op")
 }
 
 func contains(s []Op, e Op) bool {
@@ -95,6 +110,20 @@ var UpgradeCheckerMap = map[string]UpgradeChecker{
 	"noUpgrade": NoUpgrade,
 	"upgrade":   Upgrade,
 	"ignore":    Ignore,
+}
+
+var (
+	ZeroInMiddle = ResultChecker{ShouldRetry: func(sum, next, result int16, op Op) bool {
+		r := strconv.Itoa(int(result))
+		if len(r) < 3 {
+			return true
+		}
+		return !strings.Contains(r[1:len(r)-1], "0")
+	}}
+)
+
+var ResultCheckerMap = map[string]ResultChecker{
+	"zeroInMiddle": ZeroInMiddle,
 }
 
 var (

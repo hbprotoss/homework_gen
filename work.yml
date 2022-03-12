@@ -199,3 +199,13 @@
       opCounts: [ 1, 2 ]
       upgradeChecker: ignore
       specialNumber: composite
+- gradeDesc: 三年级第二学期
+  workConfigs:
+    - workDesc: 商中间有0的除法
+      min: 100
+      max: 999
+      ops: ['÷']
+      opCounts: [1]
+      upgradeChecker: ignore
+      specialNumber: oneNumber
+      resultChecker: zeroInMiddle
